@@ -14,8 +14,7 @@ void mockWebViewPlatform() {
 
   const codec = StandardMessageCodec();
   final emptyList = codec.encodeMessage([]);
-  final messenger =
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   messenger.setMockMessageHandler(
     'dev.flutter.pigeon.webview_flutter_android.InstanceManagerHostApi.clear',
     (_) => Future.value(emptyList),
@@ -24,8 +23,7 @@ void mockWebViewPlatform() {
     'dev.flutter.pigeon.webview_flutter_android.WebViewHostApi.setWebContentsDebuggingEnabled',
     (message) async {
       final decodedMessage = codec.decodeMessage(message) as List<Object?>;
-      FakeWebViewController.instance?.debuggingEnabled =
-          decodedMessage[0] == true;
+      FakeWebViewController.instance?.debuggingEnabled = decodedMessage[0] == true;
       return emptyList;
     },
   );
@@ -134,8 +132,7 @@ abstract class FakeWebViewController extends PlatformWebViewController {
     _onPageFinishedTimer = Timer(
       const Duration(milliseconds: 10),
       () {
-        final redirectToString =
-            _currentUri?.queryParameters['redirect_to'] ?? '';
+        final redirectToString = _currentUri?.queryParameters['redirect_to'] ?? '';
         if (redirectToString.isNotEmpty) {
           final redirectTo = Uri.tryParse(redirectToString);
           if (redirectTo != null) {
@@ -150,8 +147,7 @@ abstract class FakeWebViewController extends PlatformWebViewController {
   }
 }
 
-class __FakeAndroidWebViewController extends FakeWebViewController
-    implements AndroidWebViewController {
+class __FakeAndroidWebViewController extends FakeWebViewController implements AndroidWebViewController {
   __FakeAndroidWebViewController(super.params);
 
   @override
@@ -177,8 +173,7 @@ class __FakeAndroidWebViewController extends FakeWebViewController
 
   @override
   Future<void> setOnShowFileSelector(
-    Future<List<String>> Function(FileSelectorParams params)?
-        onShowFileSelector,
+    Future<List<String>> Function(FileSelectorParams params)? onShowFileSelector,
   ) =>
       throw UnimplementedError();
 
@@ -187,15 +182,19 @@ class __FakeAndroidWebViewController extends FakeWebViewController
 
   @override
   int get webViewIdentifier => throw UnimplementedError();
+
+  @override
+  Future<void> setAllowFileAccess(bool allow) {
+    // TODO: implement setAllowFileAccess
+    throw UnimplementedError();
+  }
 }
 
-class __FakeWebKitWebViewController extends FakeWebViewController
-    implements WebKitWebViewController {
+class __FakeWebKitWebViewController extends FakeWebViewController implements WebKitWebViewController {
   __FakeWebKitWebViewController(super.params);
 
   @override
-  Future<void> setAllowsBackForwardNavigationGestures(bool enabled) =>
-      throw UnimplementedError();
+  Future<void> setAllowsBackForwardNavigationGestures(bool enabled) => throw UnimplementedError();
 
   @override
   Future<void> setInspectable(bool value) async {
@@ -235,12 +234,10 @@ class _FakeWebViewControllerTimerDisposer extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() =>
-      _FakeWebViewControllerTimerDisposerState();
+  State<StatefulWidget> createState() => _FakeWebViewControllerTimerDisposerState();
 }
 
-class _FakeWebViewControllerTimerDisposerState
-    extends State<_FakeWebViewControllerTimerDisposer> {
+class _FakeWebViewControllerTimerDisposerState extends State<_FakeWebViewControllerTimerDisposer> {
   @override
   void dispose() {
     widget.controller._onPageFinishedTimer?.cancel();
@@ -270,9 +267,7 @@ class _FakeWebViewWidget extends PlatformWebViewWidget {
   }
 }
 
-class _FakeWebViewPlatform extends Fake
-    with MockPlatformInterfaceMixin
-    implements WebViewPlatform {
+class _FakeWebViewPlatform extends Fake with MockPlatformInterfaceMixin implements WebViewPlatform {
   _FakeWebViewPlatform() {
     WebViewPlatform.instance = this;
   }

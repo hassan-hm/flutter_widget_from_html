@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:webview_flutter/webview_flutter.dart' as lib;
 import 'package:webview_flutter_android/webview_flutter_android.dart' as lib;
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart'
-    as lib;
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart' as lib;
 
 import 'web_view.dart';
 
@@ -49,9 +48,7 @@ class WebViewState extends State<WebView> {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       params = lib.WebKitWebViewControllerCreationParams(
         allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: widget.mediaPlaybackAlwaysAllow
-            ? {}
-            : {...lib.PlaybackMediaTypes.values},
+        mediaTypesRequiringUserAction: widget.mediaPlaybackAlwaysAllow ? {} : {...lib.PlaybackMediaTypes.values},
       );
     }
 
@@ -66,9 +63,8 @@ class WebViewState extends State<WebView> {
     await _controller.setNavigationDelegate(
       lib.NavigationDelegate(
         onPageFinished: _onPageFinished,
-        onNavigationRequest: widget.interceptNavigationRequest != null
-            ? (req) => _interceptNavigationRequest(req)
-            : null,
+        onNavigationRequest:
+            widget.interceptNavigationRequest != null ? (req) => _interceptNavigationRequest(req) : null,
       ),
     );
     await _controller.setUserAgent(widget.userAgent);
@@ -82,10 +78,8 @@ class WebViewState extends State<WebView> {
         !widget.mediaPlaybackAlwaysAllow,
       );
 
-      final onHideCustomWidget =
-          widget.onAndroidHideCustomWidget ?? _onAndroidHideCustomWidgetDefault;
-      final onShowCustomWidget =
-          widget.onAndroidShowCustomWidget ?? _onAndroidShowCustomWidgetDefault;
+      final onHideCustomWidget = widget.onAndroidHideCustomWidget ?? _onAndroidHideCustomWidgetDefault;
+      final onShowCustomWidget = widget.onAndroidShowCustomWidget ?? _onAndroidShowCustomWidgetDefault;
       await platformController.setCustomWidgetCallbacks(
         onHideCustomWidget: onHideCustomWidget,
         onShowCustomWidget: (child, _) => onShowCustomWidget(child),
@@ -164,9 +158,7 @@ class WebViewState extends State<WebView> {
       intercepted = callback(req.url);
     }
 
-    return intercepted
-        ? lib.NavigationDecision.prevent
-        : lib.NavigationDecision.navigate;
+    return intercepted ? lib.NavigationDecision.prevent : lib.NavigationDecision.navigate;
   }
 
   void _onAndroidHideCustomWidgetDefault() {
@@ -206,10 +198,7 @@ class _ResizeObserver {
   final stream = StreamController<Size>();
   final WebViewState wvs;
 
-  _ResizeObserver(this.wvs)
-      : channelName = 'FwfhWebViewResizeObserver${wvs.hashCode}';
-
-  Future<dynamic> close() => stream.close();
+  _ResizeObserver(this.wvs) : channelName = 'FwfhWebViewResizeObserver${wvs.hashCode}';
 
   Future<void> initialize() async {
     await wvs._controller.addJavaScriptChannel(
@@ -220,12 +209,24 @@ class _ResizeObserver {
           final width = parsed[0];
           final height = parsed[1];
           if (width is num && height is num) {
-            stream.sink.add(Size(width.toDouble(), height.toDouble()));
+            try {
+              if (!stream.isClosed) {
+                stream.sink.add(Size(width.toDouble(), height.toDouble()));
+              } else {
+                debugPrint('Stream is closed. Cannot add Size.');
+              }
+            } catch (e) {
+              debugPrint('Error adding Size to stream: $e');
+            }
+          } else {
+            debugPrint('Invalid width or height. Cannot add Size to stream.');
           }
         }
       },
     );
   }
+
+  Future<dynamic> close() => stream.close();
 
   Future<void> observe(String target) async {
     if (!wvs.mounted) {
